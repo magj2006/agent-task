@@ -15,7 +15,7 @@ pub struct ConfirmTask<'info> {
     pub task: Account<'info, Task>,
 
     #[account(
-        seeds = [b"config".as_ref()],
+        seeds = [b"initialize".as_ref()],
         bump = config.bump
     )]
     pub config: Account<'info, Config>,
@@ -24,6 +24,7 @@ pub struct ConfirmTask<'info> {
 
 impl ConfirmTask<'_> {
     pub fn handler(ctx: Context<ConfirmTask>, params: ConfirmTaskParams) -> Result<()> {
+        msg!("confirming...");
         require!(
             ctx.accounts.payer.key() == ctx.accounts.config.delegate
                 || ctx.accounts.payer.key() == ctx.accounts.config.admin,
@@ -31,6 +32,8 @@ impl ConfirmTask<'_> {
         );
         let task = &mut ctx.accounts.task;
         task.task_status = params.task_status;
+        task.rewarder = params.rewarder;
+        msg!("confirmed...");
         Ok(())
     }
 }
